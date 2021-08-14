@@ -18,19 +18,19 @@ typeE = ("jmp", "jlt", "jgt", "je")
 
 def mov(arr):
     if arr[2][0] == "R":
-        print( opcode[arr[0]] + '00000' + reg[arr[1]] + reg[arr[2]] )
+        print( '00011' + '00000' + reg[arr[1]] + reg[arr[2]] )
 
     elif arr[2][0] == "$":
-        imm = bin(arr[2][1:]).replace("0b", "")
-        imm += '0'*(8 - len(b))
-        print( opcode[arr[0]] + reg[arr[1]] + imm )
+        imm = str( bin( int(arr[2][1:]) ) ).replace("0b", "")
+        imm = '0' * (8 - len(imm)) + imm
+        print( '00010' + reg[arr[1]] + imm )
 
 def type_A(arr):
-    print(arr[0] + '00' + arr[1] + arr[2] + arr[3])
+    print(opcode[arr[0]] + '00' + reg[arr[1]] + reg[arr[2]] + reg[arr[3]])
 
 def type_B(arr):
-    imm = bin(arr[2][1:]).replace("0b", "")
-    imm += '0' * (8 - len(b))
+    imm = str( bin( int(arr[2][1:]) ) ).replace("0b", "")
+    imm = '0' * (8 - len(imm)) + imm
     print(opcode[arr[0]] + reg[arr[1]] + imm)
 
 def type_C(arr):
@@ -67,7 +67,6 @@ def main():
         a = [ x for x in i.split() ]
         if a[0] == 'label:':
             a = a[1:]
-
         if a[0] in typeA:
             type_A(a)
         elif a[0] in typeB:
@@ -85,7 +84,3 @@ def main():
 
 
 main()
-
-# this file is incomplete
-
-
