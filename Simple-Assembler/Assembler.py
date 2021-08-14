@@ -49,9 +49,10 @@ def type_F(arr):
 
 def main():
     user_input = []
+    count = 1
     for line in stdin:
-        if line == '':  # If empty string is read then stop the loop
-            break
+        if count == 257:
+           break
         user_input.append(line)
 
     # res = Checkerrror.check(user_input)
