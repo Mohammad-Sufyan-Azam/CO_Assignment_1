@@ -54,6 +54,12 @@ def main():
         if count == 257:
            break
         user_input.append(line)
+    count = 0
+    for line in user_input[-1::]:
+        if line != "":
+            break
+        count += 1
+    user_input = user_input[0:len(user_input) - count]
 
     # res = Checkerrror.check(user_input)
     # if res == False:      # False means no error is present
