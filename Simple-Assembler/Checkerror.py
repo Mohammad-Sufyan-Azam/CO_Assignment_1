@@ -1,21 +1,21 @@
 
 '''         GOALS
 The assembler should be capable of:
-1. Handling all supported instructions                                      |
-2. Handling labels                                                          |
-3. Handling variables                                                       |
+1. Handling all supported instructions                                      |   done
+2. Handling labels                                                          |   done
+3. Handling variables                                                       |   done
 
 4. Making sure that any illegal instruction (any instruction (or instruction usage) which is not
 supported) results in a syntax error. In particular you must handle:
 
-a. Typos in instruction name or register name                               |
+a. Typos in instruction name or register name                               |   done
 b. Use of undefined variables                                               |
 c. Use of undefined labels                                                  |
 d. Illegal use of FLAGS register                                            |
-e. Illegal Immediate values (less than 0 or more than 255)                  |
+e. Illegal Immediate values (less than 0 or more than 255)                  |   done
 f. Misuse of labels as variables or vice-versa                              |
-g. Variables not declared at the beginning. Missing hlt instruction         |
-i. hlt not being used as the last instruction                               |
+g. Variables not declared at the beginning. Missing hlt instruction         |   done
+i. hlt not being used as the last instruction                               |   done
 
 Wrong syntax used for instructions (For example, add instruction being used as a
 type B instruction).
