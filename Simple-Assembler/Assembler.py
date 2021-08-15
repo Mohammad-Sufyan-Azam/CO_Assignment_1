@@ -1,5 +1,4 @@
 from sys import stdin
-
 # import Checkerror
 
 opcode = {"add": "00000", "sub": "00001", "ld": "00100", "st": "00101", "mul": "00110", "div": "00111",
@@ -43,22 +42,23 @@ def type_C(arr):
 
 
 def type_D(arr, mem):
-    # insert memory address also
+    mem = '0' * (8 - len(mem)) + mem
     print(opcode[arr[0]] + reg[arr[1]] + mem)
 
 
 def type_E(arr, mem):
-    # insert memory address also
+    mem = '0' * (8 - len(mem)) + mem
     print(opcode[arr[0]] + '000' + mem)
 
 
 def type_F(arr):
-    print(opcode[arr[0]] + '00000000000')
+    print(opcode[arr[0]] + '00000000000',end = "")
 
 
 def main():
     user_input = []
     count = 1
+
     for line in stdin:
         if count == 257:
             break
@@ -69,6 +69,9 @@ def main():
             break
         count += 1
     user_input = user_input[0:len(user_input) - count]
+
+    # res = Checkerrror.check(user_input)
+    # if res == False:      # False means no error is present
 
     memory_add = {}
     count_var = 0
@@ -88,8 +91,6 @@ def main():
             memory_add[l[0][:-1]] = str(bin(count)).replace('0b', '')
         count += 1
 
-    # res = Checkerrror.check(user_input)
-    # if res == False:      # False means no error is present
     for i in user_input:
         a = [x for x in i.split()]
         if a[0] == 'label:':
@@ -111,4 +112,3 @@ def main():
 
 
 main()
-
