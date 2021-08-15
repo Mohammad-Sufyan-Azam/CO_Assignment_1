@@ -40,6 +40,7 @@ jmp mem_addr
 hlt
 '''
 # case where any other instruction can call labels not handled
+
 correct = ("add", "sub", "ld", "st", "mul", "div", "rs", "ls", "xor", "or", "and", "not", "cmp", "jmp", "jlt", "jgt",
           "je", "hlt", "mov", "var")
 
@@ -48,6 +49,7 @@ typeB = ("rs", "ls")
 typeC = ("div", "not", "cmp")
 typeD = ("ld", "st")
 typeE = ("jmp", "jlt", "jgt", "je")
+
 
 def error_A(lin, line_no):
     if not(len(lin) == 4):
@@ -61,7 +63,7 @@ def error_A(lin, line_no):
 
     for i in range(1, 4):
         if int(lin[i][1]) > 6 or int(lin[i][1]) < 0:
-            print(f"ERROR: Typo in register name on line {line_no}")
+            print(f"ERROR: Illegal register name on line {line_no}")
             return True
 
     return False
@@ -109,13 +111,15 @@ def error_D(lin, line_no):      # ld R1 X
         print(f"ERROR: Incorrect syntax in line {line_no}")
         return True
 
-    if len(lin[1]) != 2 or lin[1][0] != "R": # memory address not checked
+    if len(lin[1]) != 2 or lin[1][0] != "R":
         print(f"ERROR: Typo in register name on line {line_no}")
         return True
 
     if int(lin[1][1]) > 6 or int(lin[1][1]) < 0:
         print(f"ERROR: Illegal register name declaration on line {line_no}")
         return True
+
+    # memory address not checked
 
     return False
 
@@ -130,19 +134,60 @@ def error_E(lin, line_no):      # jmp X
     return False
 
 
-def check(file):
-    # main function of the program
+def error_mov(lin, line_no):    # mov R1 $4   /    mov R1 R2
+    if not(len(lin) == 3):
+        print(f"ERROR: Incorrect syntax in line {line_no}")
+        return True
+
+    if lin[1][0] != 'R' or len(lin[1]) != 2 or int(lin[1][1:]) > 6 or int(lin[1][1:]) < 0:
+        print(f"ERROR: Illegal register declaration on line {line_no}")
+        return True
+
+    if lin[2][0] != '$' and lin[2][0] != 'R':
+        print(f"Incorrect syntax in line {line_no}")
+        return True
+
+    if (lin[2][0] == 'R') and (len(lin[2] != 2 or int(lin[2][1:]) > 6 or int(lin[2][1:]) < 0)):
+        print(f"ERROR: Illegal register declaration on line {line_no})  ")
+        return True
+
+    if lin[2][0] == '$' and (int(lin[2][1:]) < 0 or int(lin[2][1:]) > 255):
+        print(f"ERROR: Illegal immediate value in line {line_no}")
+        return True
+
+    return False
+
+
+def check(file):    # main function of the program
     line_no = 0
     var_count = 0
     address_count = 0
     defined_var = []
     defined_label = []
+'''
+    memory_add = {}
+    count_var = 0
+    for i in range(len(user_input)):
+        if user_input[i][0:3] == "var":
+            count_var += 1
+        elif user_input[i][0:3] != "var":
+            break
+    count = 0
+    for i in range(len(user_input)):
+        if user_input[i][0:3] == "var":
+            memory_add[user_input[i][4::]] = str(bin(len(user_input) - count_var)).replace('0b', '')
+            count_var += 1
+            continue
+        l = [x for x in user_input[i].split()]
+        if l[0][-1] == ":":
+            memory_add[l[0][:-1]] = str(bin(count)).replace('0b', '')
+        count += 1
+'''
 
     if file[-1] != "hlt":
         print("ERROR: halt is not the last instruction.")
         return True
-    # mov instruction should be checked separately
-    # labels and variables not checked
+
     for line in file[:-1]:
         lin = [x for x in line.split()]
         line_no += 1
@@ -153,7 +198,7 @@ def check(file):
 
         elif lin[0] not in correct:          # checks first word in line
             print(f"ERROR: Typo in line {line_no}")
-            # check whether it can be a label or not
+
             return True
 
         if lin[0] == 'var':
@@ -172,7 +217,6 @@ def check(file):
                 print(f"ERROR in line {line_no}: Label was already defined")
                 return True
             defined_label.append(name)
-
         # check whether label is declared before calling
 
         elif lin[0] in typeA:
@@ -193,6 +237,10 @@ def check(file):
 
         elif lin[0] in typeE:
             if error_E(lin, line_no):
+                return True
+        # change mov function
+        elif lin[0] == 'mov':
+            if error_mov(lin, line_no):
                 return True
 
     return False
