@@ -10,6 +10,8 @@ reg = {"R0": "000", "R1": "001", "R2": "010", "R3": "011", "R4": "100", "R5": "1
 # FLAGS not given in any case
 # case where any other instruction can call labels not handled
 # registers not initialised to zero
+
+
 typeA = ("add", "sub", "mul", "xor", "or", "and")
 typeB = ("rs", "ls")
 typeC = ("div", "not", "cmp")
@@ -71,7 +73,8 @@ def main():
     user_input = user_input[0:len(user_input) - count]
 
     # res = Checkerrror.check(user_input)
-    # if res == False:      # False means no error is present
+    # if res == False:      
+    # False means no error is present
 
     memory_add = {}
     count_var = 0
