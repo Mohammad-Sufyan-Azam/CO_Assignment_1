@@ -74,7 +74,13 @@ def main():
         count = 0
         for i in range(len(user_input)):
             if user_input[i][0:3] == "var":
-                memory_add[user_input[i][4::]] = str(bin(len(user_input) - count_var)).replace('0b', '')
+                c = 4
+                for x in user_input[i][4:]:
+                    if x == " ":
+                        c += 1
+                    else:
+                        break
+                memory_add[user_input[i][c::]] = str(bin(len(user_input) - count_var)).replace('0b', '')
                 count_var += 1
                 continue
             l = [x for x in user_input[i].split()]
