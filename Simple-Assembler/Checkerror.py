@@ -1,48 +1,7 @@
 
-'''         GOALS
-The assembler should be capable of:
-1. Handling all supported instructions                                      |   done
-2. Handling labels                                                          |   done
-3. Handling variables                                                       |   done
-
-4. Making sure that any illegal instruction (any instruction (or instruction usage) which is not
-supported) results in a syntax error. In particular you must handle:
-
-a. Typos in instruction name or register name                               |   done
-b. Use of undefined variables                                               |
-c. Use of undefined labels                                                  |
-d. Illegal use of FLAGS register                                            |
-e. Illegal Immediate values (less than 0 or more than 255)                  |   done
-f. Misuse of labels as variables or vice-versa                              |
-g. Variables not declared at the beginning. Missing hlt instruction         |   done
-i. hlt not being used as the last instruction                               |   done
-
-Wrong syntax used for instructions (For example, add instruction being used as a
-type B instruction).
-
-You need to generate distinct readable errors for all these conditions. If you find any
-other illegal usage, you are required to generate a “General Syntax Error”.
-'''
-
-'''
+# case where any other instruction can call labels handled - will give a typo
 correct = ("add", "sub", "ld", "st", "mul", "div", "rs", "ls", "xor", "or", "and", "not", "cmp", "jmp", "jlt", "jgt",
-          "je", "hlt", "mov", "var")
-Correct Examples:
-var x
-label: instruction/blank
-add R0 R1 R2
-ld R0 mem_addr
-st R0 mem_addr
-rs R0 $imm
-xor R0
-cmp R0 R1
-jmp mem_addr
-hlt
-'''
-# case where any other instruction can call labels not handled
-
-correct = ("add", "sub", "ld", "st", "mul", "div", "rs", "ls", "xor", "or", "and", "not", "cmp", "jmp", "jlt", "jgt",
-          "je", "hlt", "mov", "var")
+           "je", "hlt", "mov", "var")
 
 typeA = ("add","sub","mul", "xor", "or", "and")
 typeB = ("rs", "ls")
@@ -78,7 +37,6 @@ def error_B(lin, line_no):
         print(f"ERROR: Typo in register/immediate declaration on line {line_no}")
         return True
 
-
     if int(lin[1][1]) > 6 or int(lin[1][1]) < 0:
         print(f"ERROR: Illegal register name on line {line_no}")
         return True
@@ -105,7 +63,7 @@ def error_C(lin, line_no):
 
     return False
 
-# change error_D to error_E functions
+
 def error_D(lin, line_no):      # ld R1 X
     if not(len(lin) == 3):
         print(f"ERROR: Incorrect syntax in line {line_no}")
@@ -119,8 +77,6 @@ def error_D(lin, line_no):      # ld R1 X
         print(f"ERROR: Illegal register name declaration on line {line_no}")
         return True
 
-    # memory address not checked
-
     return False
 
 
@@ -128,8 +84,6 @@ def error_E(lin, line_no):      # jmp X
     if not(len(lin) == 2):
         print(f"ERROR: Incorrect syntax in line {line_no}")
         return True
-
-    # memory address not checked
 
     return False
 
@@ -160,88 +114,118 @@ def error_mov(lin, line_no):    # mov R1 $4   /    mov R1 R2
 
 def check(file):    # main function of the program
     line_no = 0
-    var_count = 0
-    address_count = 0
+    instruct_count = 0
     defined_var = []
     defined_label = []
-'''
-    memory_add = {}
-    count_var = 0
-    for i in range(len(user_input)):
-        if user_input[i][0:3] == "var":
-            count_var += 1
-        elif user_input[i][0:3] != "var":
-            break
-    count = 0
-    for i in range(len(user_input)):
-        if user_input[i][0:3] == "var":
-            memory_add[user_input[i][4::]] = str(bin(len(user_input) - count_var)).replace('0b', '')
-            count_var += 1
-            continue
-        l = [x for x in user_input[i].split()]
-        if l[0][-1] == ":":
-            memory_add[l[0][:-1]] = str(bin(count)).replace('0b', '')
-        count += 1
-'''
+    temp = True
 
     if file[-1] != "hlt":
         print("ERROR: halt is not the last instruction.")
         return True
 
-    for line in file[:-1]:
+    for line in file[:-1]:                 # iterate over each line except last
         lin = [x for x in line.split()]
         line_no += 1
+
+        if ':' == lin[0][-1]:
+            temp = False
+            instruct_count += 1
+            name = lin[0][:-1]
+            if name in defined_label:
+                print(f"ERROR in line {line_no}: Label was already defined")
+                return True
+
+            if name not in defined_var:
+                defined_label.append(name)
+            else:
+                print(f"ERROR in line {line_no}: Variable of same name is defined earlier ")
+                return True
+
+        elif lin[0] not in correct:          # checks first word in line
+            print(f"ERROR: Typo in line {line_no}")
+            return True
 
         if lin[0] == 'hlt':
             print(f"ERROR in line {line_no}: halt is used multiple times ")
             return True
 
-        elif lin[0] not in correct:          # checks first word in line
-            print(f"ERROR: Typo in line {line_no}")
-
-            return True
-
-        if lin[0] == 'var':
-            if len(lin[0] != 2):
+        elif lin[0] == 'var' and temp:
+            instruct_count += 1
+            if len(lin) != 2:
                 print(f"ERROR: Incorrect syntax in line {line_no}")
                 return True
 
             elif lin[1] in defined_var:
                 print(f"ERROR in line {line_no}: Variable was already defined")
                 return True
-            # check whether the variables come before instructions only
 
-        elif ':' == lin[0][-1]:
-            name = lin[0][:-1]
-            if name in defined_label:
-                print(f"ERROR in line {line_no}: Label was already defined")
+            if lin[1] not in defined_label:
+                defined_label.append(lin[1])
+            else:
+                print(f"ERROR in line {line_no}: Label of same name was defined earlier ")
                 return True
-            defined_label.append(name)
-        # check whether label is declared before calling
 
         elif lin[0] in typeA:
+            temp = False
+            instruct_count += 1
             if error_A(lin, line_no):
                 return True
 
         elif lin[0] in typeB:
+            temp = False
+            instruct_count += 1
             if error_B(lin, line_no):
                 return True
 
         elif lin[0] in typeC:
+            temp = False
+            instruct_count += 1
             if error_C(lin, line_no):
                 return True
 
         elif lin[0] in typeD:
-            if error_D(lin, line_no):
+            temp = False
+            instruct_count += 1
+            if lin[2] not in defined_var and lin[2] in defined_label:
+                print(f"ERROR in line {line_no}: Misuse of label as variable ")
+                return True
+
+            elif lin[2] not in defined_label and lin[2] not in defined_var:
+                v = lin[2]
+                print(f"ERROR in line {line_no}: Variable {v} not defined earlier ")
+                return True
+
+            elif error_D(lin, line_no):
                 return True
 
         elif lin[0] in typeE:
-            if error_E(lin, line_no):
+            temp = False
+            instruct_count += 1
+            if lin[2] not in defined_label and lin[2] in defined_var:
+                print(f"ERROR in line {line_no}: Misuse of variable as label ")
                 return True
-        # change mov function
-        elif lin[0] == 'mov':
+
+            elif lin[2] not in defined_label and lin[2] not in defined_var:
+                v = lin[2]
+                print(f"ERROR in line {line_no}: Label {v} not defined earlier ")
+                return True
+
+            elif error_E(lin, line_no):
+                return True
+
+        elif lin[0] == 'mov':   # change mov function
+            temp = False
+            instruct_count += 1
             if error_mov(lin, line_no):
                 return True
+
+        elif not temp:
+            print(f"ERROR in line {line_no}: Variable declared after instruction")
+            return True
+
+        elif instruct_count > 256:
+            print("ERROR: No of instructions exceed 256")
+            return True
 
     return False
 
