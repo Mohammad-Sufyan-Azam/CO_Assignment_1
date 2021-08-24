@@ -67,12 +67,18 @@ def main():
         memory_add = {}
         count_var = 0
         for i in range(len(user_input)):
+            empty = [x for x in user_input[i].split()]
+            if len(empty) == 0:
+                continue
             if user_input[i][0:3] == "var":
                 count_var += 1
             elif user_input[i][0:3] != "var":
                 break
         count = 0
         for i in range(len(user_input)):
+            empty = [x for x in user_input[i].split()]
+            if len(empty) == 0:
+                continue
             if user_input[i][0:3] == "var":
                 c = 4
                 for x in user_input[i][4:]:
@@ -81,7 +87,7 @@ def main():
                     else:
                         break
                 memory_add[user_input[i][c::]] = str(bin(len(user_input) - count_var)).replace('0b', '')
-                count_var += 1
+                count_var -= 1
                 continue
             l = [x for x in user_input[i].split()]
             if l[0][-1] == ":":
@@ -89,6 +95,9 @@ def main():
             count += 1
 
         for i in user_input:
+            empty = [x for x in i.split()]
+            if len(empty) == 0:
+                continue
             a = [x for x in i.split()]
             if a[0][-1] == ':':
                 a = a[1:]
