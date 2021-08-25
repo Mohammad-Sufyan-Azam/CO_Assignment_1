@@ -1,7 +1,9 @@
+# case where any other instruction can call labels handled - will give a typo
+
 correct = ("add", "sub", "ld", "st", "mul", "div", "rs", "ls", "xor", "or", "and", "not", "cmp", "jmp", "jlt", "jgt",
            "je", "hlt", "mov", "var")
 
-typeA = ("add","sub","mul", "xor", "or", "and")
+typeA = ("add", "sub", "mul", "xor", "or", "and")
 typeB = ("rs", "ls")
 typeC = ("div", "not", "cmp")
 typeD = ("ld", "st")
@@ -19,7 +21,7 @@ def error_A(lin, line_no):      # ADD R0 R1 R2
         return True
 
     for i in range(1, 4):
-        if int(lin[i][1]) > 6 or int(lin[i][1]) < 0:
+        if lin[i][1].isalpha() or int(lin[i][1]) > 6 or int(lin[i][1]) < 0:
             print(f"ERROR: Illegal register name on line {line_no}")
             return True
 
@@ -35,7 +37,7 @@ def error_B(lin, line_no):      # rs R1 $5
         print(f"ERROR: Typo in register/immediate declaration on line {line_no}")
         return True
 
-    if int(lin[1][1]) > 6 or int(lin[1][1]) < 0:
+    if lin[1][1].isalpha() or int(lin[1][1]) > 6 or int(lin[1][1]) < 0:
         print(f"ERROR: Illegal register name on line {line_no}")
         return True
 
@@ -55,7 +57,7 @@ def error_C(lin, line_no):      # div R2 R3
         return True
 
     for i in range(1, 3):
-        if int(lin[i][1]) > 6 or int(lin[i][1]) < 0:
+        if lin[i][1].isalpha() or int(lin[i][1]) > 6 or int(lin[i][1]) < 0:
             print(f"ERROR: Illegal register name declaration on line {line_no}")
             return True
 
@@ -71,7 +73,7 @@ def error_D(lin, line_no):      # ld R1 X
         print(f"ERROR: Typo in register name on line {line_no}")
         return True
 
-    if int(lin[1][1]) > 6 or int(lin[1][1]) < 0:
+    if lin[1][1].isalpha() or int(lin[1][1]) > 6 or int(lin[1][1]) < 0:
         print(f"ERROR: Illegal register name declaration on line {line_no}")
         return True
 
@@ -91,7 +93,7 @@ def error_mov(lin, line_no):    # mov R1 $4   /    mov R1 R2    /      mov R1 FL
         print(f"ERROR: Incorrect syntax in line {line_no}")
         return True
 
-    if lin[1][0] != 'R' or len(lin[1]) != 2 or int(lin[1][1:]) > 6 or int(lin[1][1:]) < 0:
+    if lin[1][0] != 'R' or len(lin[1]) != 2 or lin[1][1].isalpha() or int(lin[1][1:]) > 6 or int(lin[1][1:]) < 0:
         print(f"ERROR: Illegal register declaration on line {line_no}")
         return True
 
@@ -99,8 +101,8 @@ def error_mov(lin, line_no):    # mov R1 $4   /    mov R1 R2    /      mov R1 FL
         print(f"Incorrect syntax in line {line_no}")
         return True
 
-    if (lin[2][0] == 'R') and (len(lin[2]) != 2 or int(lin[2][1:]) > 6 or int(lin[2][1:]) < 0):
-        print(f"ERROR: Illegal register declaration on line {line_no})  ")
+    if (lin[2][0] == 'R') and (len(lin[2]) != 2 or lin[2][1].isalpha() or int(lin[2][1:]) > 6 or int(lin[2][1:]) < 0):
+        print(f"ERROR: Illegal register declaration on line {line_no})")
         return True
 
     if (lin[2][0] == '$') and (int(lin[2][1:]) < 0 or int(lin[2][1:]) > 255):
@@ -115,26 +117,49 @@ def check(file):    # main function of the program
     instruct_count = 0
     defined_var = []
     defined_label = []
-    temp = True
+    temp = True        # empty lines not checked
 
-    if file[-1] != "hlt" and (':' not in file[-1]):
-        print("ERROR: halt is not the last instruction.")
-        return True
+    last = [x for x in file[-1].split()]
+    i = -1
+    pos = len(file)
+    while True:
+        if len(last) == 0:             # an empty line
+            if len(file) > -i:         # all empty lines present handled
+                i -= 1
+                last = [x for x in file[i].split()]
+            else:
+                print(f"ERROR in line {pos}: halt is not the last instruction.")
+                return True
 
-    if ':' in file[-1]:
-        hlt_label_check = [x for x in file[-1].split()]
-        if hlt_label_check[0][-1] == ':' and hlt_label_check[1] != 'hlt':
-            print("ERROR: halt is not the last instruction.")
+        if len(last) != 0 and file[i] != "hlt" and (':' not in file[i]):
+            print(f"ERROR in line {pos}: halt is not the last instruction.")
             return True
 
+        if len(last) != 0 and ':' in file[i]:
+            hlt_label_check = last
+            if len(hlt_label_check) != 2:
+                print(f"ERROR in line {pos}: halt is not the last instruction.")
+                return True
+            if hlt_label_check[0][-1] == ':' and hlt_label_check[1] != 'hlt':
+                print(f"ERROR in line {pos}: halt is not the last instruction.")
+                return True
+
+        if len(last) != 0 and (('hlt' == last[0]) or (':' == last[0][-1] and 'hlt' == last[1])):
+            break
+
+        pos -= 1
+
     position = 0
-    for label in file:        # Updating labels in list
+    for label in file:           # Updating labels in list
         position += 1
         lin = [x for x in label.split()]
-        if ':' not in lin[0]:
+        if len(lin) == 0:     # an empty line
             continue
 
-        elif ':' in lin[0][-1]:
+        elif ':' not in lin[0]:  # not a label
+            continue
+
+        elif ':' in lin[0]:
             if ':' != lin[0][-1]:
                 print(f"ERROR: Syntax error in line {position}")
                 return True
@@ -144,21 +169,28 @@ def check(file):    # main function of the program
                 if name in defined_label:
                     print(f"ERROR in line {position}: Label was already defined")
                     return True
-
                 defined_label.append(name)
 
-    for line in file[:-1]:     # iterate over each line except last
+    for line in file[:i]:     # iterate over each line except last
         lin = [x for x in line.split()]
         line_no += 1
+
+        if len(lin) == 0:       # empty lines skipped
+            continue
 
         if ':' == lin[0][-1]:
             temp = False
             instruct_count += 1
             name = lin[0][:-1]
             if name in defined_var:
-                print()
+                print(f"ERROR in line {line_no}: A variable of the same name is defined earlier")
+                return True
+            lin = lin[1:]
 
-        elif lin[0] not in correct:          # checks first word in line
+        if len(lin) == 0:       # empty labels skipped
+            continue
+
+        if lin[0] not in correct:          # checks first word in line
             print(f"ERROR: Typo in line {line_no}")
             return True
 
