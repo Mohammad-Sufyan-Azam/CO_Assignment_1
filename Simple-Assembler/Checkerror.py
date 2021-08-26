@@ -41,7 +41,7 @@ def error_B(lin, line_no):      # rs R1 $5
         print(f"ERROR: Illegal register name on line {line_no}")
         return True
 
-    if int(lin[2][1:]) > 255 or int(lin[2][1:] < 0):
+    if int(lin[2][1:]) > 255 or int(lin[2][1:]) < 0:
         print(f"ERROR: Illegal immediate value in line {line_no}")
 
     return False
@@ -277,4 +277,3 @@ def check(file):    # main function of the program
             return True
 
     return False
-# this file has been completed
