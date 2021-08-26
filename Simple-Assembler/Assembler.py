@@ -118,5 +118,3 @@ def main():
 
 
 main()
-
-# this code is precious
