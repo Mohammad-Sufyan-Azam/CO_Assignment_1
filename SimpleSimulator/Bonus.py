@@ -6,56 +6,69 @@ reg_state = {'000': 0, '001': 0, '010': 0, '011': 0, '100': 0, '101': 0, '110': 
 counter = []
 
 def PC(count):
-
     counter.append(count)
 
 
 def show(user_input):
-    x = [i for i in range(len(user_input))]
+    x = []
+    for i in range(len(counter)):
+        x.append(i)
     y = counter
-    '''
+
     plt.title('Memory Address vs Cycles')
     plt.xlabel('Cycles')
     plt.ylabel('Memory Address')
     plt.scatter(x, y)
-    plt.plot(x, y)
+    # plt.plot(x, y)
+    plt.savefig('graph.png')
     plt.show()
-    '''
-    print(x)
-    print(y)
 
 
 
 def main():
     user_input = []
-    '''
+
     while True:
         try:
             line = input()
             user_input.append(line)
         except EOFError:
             break
-    '''
-    for _ in range(int(input())):
-        user_input.append(input())
+            
+    i = 0
+    var_mem = {}
+    while i != len(user_input):
+
+        if user_input[i][:5] == '00100':  # ld R0 x
+            var_mem[user_input[i][8:]] = 0
+
+        elif user_input[i][:5] == '00101':  # st R0 x
+            var_mem[user_input[i][8:]] = 0
+
+        i += 1
 
     pc = 0
     i = 0
     t = 0
-    var_mem = {}
+
     while i != len(user_input):
 
-        PC(pc)
+        if t > 0:
+            t = t - 1
         i += t
         t = 0
-        if user_input[i][:5] == '00000': # add R0 R1 R2
+        pc_jump = False
+
+        PC(pc)
+
+        if user_input[i][:5] == '00000':  # add R0 R1 R2
             reg_state[user_input[i][7:10]] = reg_state[user_input[i][10:13]] + reg_state[user_input[i][13:]]
             if reg_state[user_input[i][7:10]] > 65535:
                 reg_state['111'] = 8
             else:
                 reg_state['111'] = 0
 
-        elif user_input[i][:5] == '00001': # sub R0 R1 R2
+        elif user_input[i][:5] == '00001':  # sub R0 R1 R2
             if reg_state[user_input[i][10:13]] < reg_state[user_input[i][13:]]:
                 reg_state['111'] = 8
                 reg_state[user_input[i][7:10]] = 0
@@ -63,30 +76,30 @@ def main():
                 reg_state[user_input[i][7:10]] = reg_state[user_input[i][10:13]] - reg_state[user_input[i][13:]]
                 reg_state['111'] = 0
 
-        elif user_input[i][:5] == '00010': # mov R0 $5
+        elif user_input[i][:5] == '00010':  # mov R0 $5
             reg_state[user_input[i][5:8]] = int(user_input[i][8:], 2)
             reg_state['111'] = 0
 
-        elif user_input[i][:5] == '00011': # mov R0 R1
+        elif user_input[i][:5] == '00011':  # mov R0 R1
             reg_state[user_input[i][10:13]] = reg_state[user_input[i][13:]]
             reg_state['111'] = 0
 
-        elif user_input[i][:5] == '00100': # ld R0 x
+        elif user_input[i][:5] == '00100':  # ld R0 x
             reg_state[user_input[i][5:8]] = var_mem[user_input[i][8:]]
             reg_state['111'] = 0
 
-        elif user_input[i][:5] == '00101': # st R0 x
+        elif user_input[i][:5] == '00101':  # st R0 x
             var_mem[user_input[i][8:]] = reg_state[user_input[i][5:8]]
             reg_state['111'] = 0
 
-        elif user_input[i][:5] == '00110': # mul R0 R1 R2
+        elif user_input[i][:5] == '00110':  # mul R0 R1 R2
             reg_state[user_input[i][7:10]] = reg_state[user_input[i][10:13]] * reg_state[user_input[i][13:]]
             if reg_state[user_input[i][7:10]] > 65535:
                 reg_state['111'] = 8
             else:
                 reg_state['111'] = 0
 
-        elif user_input[i][:5] == '00111': # div R2 R3
+        elif user_input[i][:5] == '00111':  # div R2 R3
             if reg_state[user_input[i][13:]] == 0 or reg_state[user_input[i][10:13]] == 0:
                 reg_state['000'] = 0
                 reg_state['001'] = 0
@@ -96,83 +109,83 @@ def main():
             reg_state['111'] = 0
 
 
-        elif user_input[i][:5] == '01000': # rs R0 $5
+        elif user_input[i][:5] == '01000':  # rs R0 $5
             shift = int(user_input[i][8:], 2)
             reg = str(bin(reg_state[user_input[i][5:8]])).replace('0b', '')
             length = len(reg)
             if length > shift:
-                reg = '0'*shift + reg[:length-shift]
+                reg = '0' * shift + reg[:length - shift]
                 reg_state[user_input[i][5:8]] = int(reg, 2)
             else:
                 reg_state[user_input[i][5:8]] = 0
             reg_state['111'] = 0
 
-        elif user_input[i][:5] == '01001': # ls R0 $5
+        elif user_input[i][:5] == '01001':  # ls R0 $5
             shift = int(user_input[i][8:], 2)
             reg = str(bin(reg_state[user_input[i][5:8]])).replace('0b', '')
             length = len(reg)
             if length > shift:
-                reg = reg[shift:] + '0'*shift
+                reg = reg[shift:] + '0' * shift
                 reg_state[user_input[i][5:8]] = int(reg, 2)
             else:
                 reg_state[user_input[i][5:8]] = 0
             reg_state['111'] = 0
 
-        elif user_input[i][:5] == '01010': # xor R0 R1 R2
+        elif user_input[i][:5] == '01010':  # xor R0 R1 R2
             a = str(bin(reg_state[user_input[i][10:13]])).replace('0b', '')
             b = str(bin(reg_state[user_input[i][13:]])).replace('0b', '')
-            a = '0'*(16 - len(a)) + a
-            b = '0' * (16 - len(a)) + b
+            a = '0' * (16 - len(a)) + a
+            b = '0' * (16 - len(b)) + b
             c = ''
-            for i in range(len(a)):
-                if a[i] != b[i]:
+            for j in range(len(a)):
+                if a[j] != b[j]:
                     c += '1'
                 else:
                     c += '0'
             reg_state[user_input[i][7:10]] = int(c, 2)
             reg_state['111'] = 0
 
-        elif user_input[i][:5] == '01011': # or R0 R1 R2
+        elif user_input[i][:5] == '01011':  # or R0 R1 R2
             a = str(bin(reg_state[user_input[i][10:13]])).replace('0b', '')
             b = str(bin(reg_state[user_input[i][13:]])).replace('0b', '')
             a = '0' * (16 - len(a)) + a
-            b = '0' * (16 - len(a)) + b
+            b = '0' * (16 - len(b)) + b
             c = ''
-            for i in range(len(a)):
-                if a[i] == '1' or b[i] == '1':
+            for j in range(len(a)):
+                if a[j] == '1' or b[j] == '1':
                     c += '1'
                 else:
                     c += '0'
             reg_state[user_input[i][7:10]] = int(c, 2)
             reg_state['111'] = 0
 
-        elif user_input[i][:5] == '01100': # and R0 R1 R2
+        elif user_input[i][:5] == '01100':  # and R0 R1 R2
             a = str(bin(reg_state[user_input[i][10:13]])).replace('0b', '')
             b = str(bin(reg_state[user_input[i][13:]])).replace('0b', '')
             a = '0' * (16 - len(a)) + a
-            b = '0' * (16 - len(a)) + b
+            b = '0' * (16 - len(b)) + b
             c = ''
-            for i in range(len(a)):
-                if a[i] == b[i]:
-                    c += a[i]
+            for j in range(len(a)):
+                if a[j] == b[j]:
+                    c += a[j]
                 else:
                     c += '0'
             reg_state[user_input[i][7:10]] = int(c, 2)
             reg_state['111'] = 0
 
-        elif user_input[i][:5] == '01101': # not R0 R1
+        elif user_input[i][:5] == '01101':  # not R0 R1
             inv = str(bin(reg_state[user_input[i][13:]])).replace('0b', '')
-            inv = '0'*(16 - len(inv)) + inv
+            inv = '0' * (16 - len(inv)) + inv
             invert = ''
-            for i in inv:
-                if i == '1':
+            for j in inv:
+                if j == '1':
                     invert += '0'
                 else:
                     invert += '1'
             reg_state[user_input[i][10:13]] = int(invert, 2)
             reg_state['111'] = 0
 
-        elif user_input[i][:5] == '01110': # cmp R0 R1
+        elif user_input[i][:5] == '01110':  # cmp R0 R1
             if reg_state[user_input[i][10:13]] > reg_state[user_input[i][13:]]:
                 reg_state['111'] = 2
 
@@ -183,35 +196,43 @@ def main():
                 reg_state['111'] = 1
 
 
-        elif user_input[i][:5] == '01111':  # jmp label
+        elif user_input[i][:5] == '01111':  # jmp label  01111 000 00000000
             t = pc
+            pc_jump = True
             pc = int(user_input[i][8:], 2)
             t = pc - t
             reg_state['111'] = 0
+
 
         elif user_input[i][:5] == '10000':  # jlt label
             if reg_state['111'] == 4:
                 t = pc
                 pc = int(user_input[i][8:], 2)
                 t = pc - t
+                pc_jump = True
             reg_state['111'] = 0
+
 
         elif user_input[i][:5] == '10001':  # jgt label
             if reg_state['111'] == 2:
                 t = pc
                 pc = int(user_input[i][8:], 2)
                 t = pc - t
+                pc_jump = True
             reg_state['111'] = 0
+
 
         elif user_input[i][:5] == '10010':  # je label
             if reg_state['111'] == 1:
                 t = pc
                 pc = int(user_input[i][8:], 2)
                 t = pc - t
+                pc_jump = True
             reg_state['111'] = 0
 
-        pc += 1
-        i += 1
+        if not pc_jump:
+            pc += 1
+            i += 1
 
     show(user_input)
 
