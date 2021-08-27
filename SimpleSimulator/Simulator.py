@@ -72,7 +72,8 @@ def print_reg():
 def print_rest(arr, var_mem):
     for mem in arr:
         print(mem)          # assembler output
-    for var in var_mem.values():
+    for var in sorted(var_mem.keys()):
+        var = var_mem[var]
         var = str(bin(var)).replace('0b', '')
         var = '0'*(16 - len(var)) + var
         print(var)
@@ -94,7 +95,7 @@ def main():
             user_input.append(line)
         except EOFError:
             break
-    
+
     i = 0
     var_mem = {}
     while i != len(user_input):
@@ -293,7 +294,6 @@ def main():
         if not pc_jump:
             pc += 1
             i += 1
-
     print_rest(user_input, var_mem)
 
     

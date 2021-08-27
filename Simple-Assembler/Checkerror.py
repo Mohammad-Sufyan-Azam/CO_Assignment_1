@@ -130,7 +130,7 @@ def check(file):    # main function of the program
                 print(f"ERROR in line {pos}: halt is not the last instruction.")
                 return True
 
-        if len(last) != 0 and file[i] != "hlt" and (':' not in file[i]):
+        if len(last) != 0 and last[0] != "hlt" and (':' not in file[i]):
             print(f"ERROR in line {pos}: halt is not the last instruction.")
             return True
 

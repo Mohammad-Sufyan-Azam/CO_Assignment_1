@@ -66,35 +66,33 @@ def main():
     if not res:      # False means no error is present
         memory_add = {}
         count_var = 0
+        empty_lines = 0
         for i in range(len(user_input)):
             empty = [x for x in user_input[i].split()]
             if len(empty) == 0:
+                empty_lines += 1
                 continue
             if user_input[i][0:3] == "var":
                 count_var += 1
-            elif user_input[i][0:3] != "var":
-                break
+
         count = 0
-        for i in range(len(user_input)):
-            empty = [x for x in user_input[i].split()]
-            if len(empty) == 0:
+        for i in user_input:
+            line = [x for x in i.split()]
+            if len(line) == 0:
                 continue
-            if user_input[i][0:3] == "var":
-                c = 4
-                for x in user_input[i][4:]:
-                    if x == " ":
-                        c += 1
-                    else:
-                        break
-                memory_add[user_input[i][c::]] = str(bin(len(user_input) - count_var)).replace('0b', '')
+
+            if line[0] == "var":
+                memory_add[line[1]] = str(bin(len(user_input) - count_var - empty_lines)).replace('0b', '')
                 count_var -= 1
                 continue
-            l = [x for x in user_input[i].split()]
-            if l[0][-1] == ":":
-                memory_add[l[0][:-1]] = str(bin(count)).replace('0b', '')
+
+            if line[0][-1] == ":":
+                memory_add[line[0][:-1]] = str(bin(count)).replace('0b', '')
             count += 1
 
+        c = 0
         for i in user_input:
+            c += 1
             empty = [x for x in i.split()]
             if len(empty) == 0:
                 continue
