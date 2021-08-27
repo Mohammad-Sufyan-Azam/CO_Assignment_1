@@ -1,5 +1,4 @@
-# case where any other instruction can call labels handled - will give a typo
-
+# case where any other instruction can call labels - will give a typo
 correct = ("add", "sub", "ld", "st", "mul", "div", "rs", "ls", "xor", "or", "and", "not", "cmp", "jmp", "jlt", "jgt",
            "je", "hlt", "mov", "var")
 
@@ -124,7 +123,7 @@ def check(file):    # main function of the program
     pos = len(file)
     while True:
         if len(last) == 0:             # an empty line
-            if len(file) > -i:         # all empty lines present handled
+            if len(file) > -i:         # if all empty lines present
                 i -= 1
                 last = [x for x in file[i].split()]
             else:
@@ -277,3 +276,4 @@ def check(file):    # main function of the program
             return True
 
     return False
+
