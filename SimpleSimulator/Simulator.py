@@ -101,7 +101,7 @@ def main():
     while i != len(user_input):
     
         if user_input[i][:5] == '00100': # ld R0 x
-            var_mem[user_input[i][8:]] = 0 
+            var_mem[user_input[i][8:]] = 0
 
         elif user_input[i][:5] == '00101': # st R0 x
             var_mem[user_input[i][8:]] = 0
@@ -114,8 +114,6 @@ def main():
     
     while i != len(user_input):
 
-        if t > 0:
-            t = t - 1
         i += t
         t = 0
         pc_jump = False
@@ -302,4 +300,3 @@ def main():
     
 
 main()
-
