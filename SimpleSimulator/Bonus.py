@@ -11,9 +11,20 @@ def PC(count):
 
 def show(user_input):
     x = []
+    y = []
     for i in range(len(counter)):
+        if user_input[counter[i]][:5] == '00100':  # ld R0 x
+            a = int(user_input[i][8:], 2)
+            y.append(a)
+            x.append(i)
+
+        elif user_input[i][:5] == '00101':  # st R0 x
+            a = int(user_input[counter[i]][8:], 2)
+            y.append(a)
+            x.append(i)
+
         x.append(i)
-    y = counter
+        y.append(counter[i])
 
     plt.title('Memory Address vs Cycles')
     plt.xlabel('Cycles')
@@ -22,7 +33,6 @@ def show(user_input):
     # plt.plot(x, y)
     plt.savefig('graph.png')
     plt.show()
-
 
 
 def main():
@@ -34,7 +44,7 @@ def main():
             user_input.append(line)
         except EOFError:
             break
-            
+
     i = 0
     var_mem = {}
     while i != len(user_input):
@@ -53,12 +63,9 @@ def main():
 
     while i != len(user_input):
 
-        if t > 0:
-            t = t - 1
         i += t
         t = 0
         pc_jump = False
-
         PC(pc)
 
         if user_input[i][:5] == '00000':  # add R0 R1 R2
@@ -196,7 +203,7 @@ def main():
                 reg_state['111'] = 1
 
 
-        elif user_input[i][:5] == '01111':  # jmp label  01111 000 00000000
+        elif user_input[i][:5] == '01111':  # jmp label
             t = pc
             pc_jump = True
             pc = int(user_input[i][8:], 2)
@@ -233,7 +240,7 @@ def main():
         if not pc_jump:
             pc += 1
             i += 1
-
+            
     show(user_input)
 
 main()
