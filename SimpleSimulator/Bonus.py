@@ -14,11 +14,11 @@ def show(user_input):
     y = []
     for i in range(len(counter)):
         if user_input[counter[i]][:5] == '00100':  # ld R0 x
-            a = int(user_input[i][8:], 2)
+            a = int(user_input[counter[i]][8:], 2)
             y.append(a)
             x.append(i)
 
-        elif user_input[i][:5] == '00101':  # st R0 x
+        elif user_input[counter[i]][:5] == '00101':  # st R0 x
             a = int(user_input[counter[i]][8:], 2)
             y.append(a)
             x.append(i)
